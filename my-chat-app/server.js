@@ -4,19 +4,23 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const mongoose = require('mongoose');
 
+// Kết nối tới MongoDB Atlas
 mongoose.connect('mongodb+srv://nhstung99:nhstung2403%40%40%40@cluster0.y6quevr.mongodb.net/?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
 .then(() => console.log('Connected to MongoDB'))
-.catch((err) => console.error('Failed to connect to MongoDB', err));
+.catch((err) => console.error('Failed to connect to MongoDB:', err));
 
+// Định nghĩa model tin nhắn
 const Message = mongoose.model('Message', {
   content: String
 });
 
+// Serve file tĩnh từ thư mục 'public'
 app.use(express.static('public'));
 
+// Xử lý socket.io
 io.on('connection', (socket) => {
   // Khi user mới vào, gửi lại tin nhắn cũ
   Message.find().then(messages => {
@@ -36,31 +40,16 @@ io.on('connection', (socket) => {
 
       // Gửi cho những người khác
       socket.broadcast.emit('chat message', { text: data.text, self: false });
+
     } catch (err) {
-      console.error('Error saving message:', err);
+      console.error('Error saving message', err);
     }
   });
 
   console.log('A user connected');
 });
-  Message.find().then(messages => {
-    messages.forEach(msg => {
-      socket.emit('chat message', msg.content);
-    });
-  });
 
-  socket.on('chat message', (msg) => {
-    const message = new Message({ content: msg });
-    message.save().then(() => {
-      io.emit('chat message', msg);
-    });
-  });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
-});
-
-http.listen(3000, () => {
-  console.log('Listening on *:3000');
+// Khởi động server
+http.listen(process.env.PORT || 3000, () => {
+  console.log('Server listening...');
 });
