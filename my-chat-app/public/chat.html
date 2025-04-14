@@ -1,1 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat App - Phòng Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+    #chat-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    #header {
+      background-color: #007bff;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    #messages {
+      list-style-type: none;
+      padding: 10px;
+      margin: 0;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+    #messages li {
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+    #messages li.self {
+      background-color: #007bff;
+      color: white;
+      margin-left: auto;
+      text-align: right;
+    }
+    #messages li.other {
+      background-color: #e1e1e1;
+    }
+    input[type="text"] {
+      width: 90%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      width: 90%;
+      padding: 10px;
+      margin-top: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="header">
+      <h2>Phòng Chat</h2>
+      <div id="status"></div>
+    </div>
+    <ul id="messages"></ul>
+    <input id="m" autocomplete="off" placeholder="Nhập tin nhắn" />
+    <button onclick="sendMessage()">Gửi</button>
+  </div>
 
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('m');
+    const statusDiv = document.getElementById('status');
+
+    // Lấy username từ localStorage
+    let username = localStorage.getItem('username');
+    if (!username) {
+      // Nếu không có username, chuyển về trang đăng nhập
+      window.location.href = 'login.html';
+    }
+
+    // Gửi sự kiện đăng nhập đến server
+    socket.emit('user login', { username: username });
+
+    // Khi nhận thông báo đăng nhập từ server (người khác đăng nhập)
+    socket.on('user login', function(data) {
+      addStatusMessage(${data.username} đã vào phòng chat);
+    });
+
+    function addStatusMessage(msg) {
+      const p = document.createElement('p');
+      p.textContent = msg;
+      statusDiv.appendChild(p);
+    }
+
+    function addMessage(data) {
+      const item = document.createElement('li');
+      item.textContent = data.text;
+      item.classList.add(data.self ? 'self' : 'other');
+      messages.appendChild(item);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function sendMessage() {
+      const msg = input.value.trim();
+      if (msg !== '') {
+        // Khi gửi tin nhắn, đánh dấu self: true
+        socket.emit('chat message', { text: msg, self: true });
+        input.value = '';
+      }
+    }
+
+    // Gửi tin nhắn khi nhấn Enter
+    input.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Khi nhận tin nhắn từ server
+    socket.on('chat message', function(data) {
+      addMessage(data);
+    });
+  </script>
+</body>
+</html>
