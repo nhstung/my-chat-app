@@ -19,29 +19,33 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
-    const messages = document.getElementById('messages');
-    const input = document.getElementById('m');
-    const audio = new Audio('/ping.mp3'); 
-    function sendMessage() {
-      const msg = input.value.trim();
+  const messages = document.getElementById('messages');
+  const input = document.getElementById('m');
+
+  // Nạp 2 âm thanh
+  const audioSend = new Audio('/send.mp3');
+  const audioReceive = new Audio('/ping.mp3');
+
+  function sendMessage() {
+    const msg = input.value.trim();
     if (msg) {
       socket.emit('chat message', msg);
+      audioSend.play();   // <-- Phát tiếng khi gửi
       input.value = '';
     }
   }
-      // Bấm ENTER để gửi
+
+  // Bấm ENTER để gửi
   input.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
       sendMessage();
     }
   });
-    
-    socket.on('chat message', function(msg){
-      const item = document.createElement('li');
-      item.textContent = msg;
-      messages.appendChild(item);
-      audio.play(); // <-- Phát âm thanh khi có tin nhắn
-    });
-  </script>
-</body>
-</html>
+
+  socket.on('chat message', function(msg) {
+    const item = document.createElement('li');
+    item.textContent = msg;
+    messages.appendChild(item);
+    audioReceive.play();   // <-- Phát tiếng khi nhận
+  });
+</script>
