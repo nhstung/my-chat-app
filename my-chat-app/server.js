@@ -18,6 +18,14 @@ const Message = mongoose.model('Message', {
 app.use(express.static('public'));
 
 io.on('connection', (socket) => {
+  socket.on('chat message', (data) => {
+    // Gửi lại cho chính mình
+    socket.emit('chat message', { text: data.text, self: true });
+
+    // Gửi cho người khác
+    socket.broadcast.emit('chat message', { text: data.text, self: false });
+  });
+});
   console.log('A user connected');
 
   Message.find().then(messages => {
