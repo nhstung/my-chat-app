@@ -29,11 +29,11 @@
   function sendMessage() {
     const msg = input.value.trim();
     if (msg) {
-      socket.emit('chat message', msg);
-      audioSend.play();   // <-- Phát tiếng khi gửi
-      input.value = '';
-    }
+    socket.emit('chat message', { text: msg, self: true });
+    audioSend.play();  // phát âm thanh gửi
+    input.value = '';
   }
+}
 
   // Bấm ENTER để gửi
   input.addEventListener('keydown', function(event) {
