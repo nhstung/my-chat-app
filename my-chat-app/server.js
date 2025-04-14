@@ -4,7 +4,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb+srv://nhstung99:nhstung2403%40%40%40@cluster0.abcd.mongodb.net/?retryWrites=true&w=majority', {
+mongoose.connect('mongodb+srv://nhstung99:nhstung2403%40%40%40@cluster0.y6quevr.mongodb.net/?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
