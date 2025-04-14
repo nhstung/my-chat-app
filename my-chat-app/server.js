@@ -21,7 +21,7 @@ io.on('connection', (socket) => {
   // Khi nhận sự kiện đăng nhập
   socket.on('user login', (data) => {
     socket.username = data.username;
-    console.log(${data.username} đã đăng nhập);
+    console.log(`${data.username} đã đăng nhập);
     // Phát tới tất cả người dùng thông báo rằng người đó đã vào
     io.emit('user login', { username: data.username });
   });
