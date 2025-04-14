@@ -18,16 +18,31 @@ const Message = mongoose.model('Message', {
 app.use(express.static('public'));
 
 io.on('connection', (socket) => {
-  socket.on('chat message', (data) => {
-    // Gửi lại cho chính mình
-    socket.emit('chat message', { text: data.text, self: true });
-
-    // Gửi cho người khác
-    socket.broadcast.emit('chat message', { text: data.text, self: false });
+  // Khi user mới vào, gửi lại tin nhắn cũ
+  Message.find().then(messages => {
+    messages.forEach(msg => {
+      socket.emit('chat message', { text: msg.content, self: false });
+    });
   });
-});
-  console.log('A user connected');
 
+  // Khi user gửi tin nhắn mới
+  socket.on('chat message', async (data) => {
+    try {
+      // Lưu tin nhắn vào database
+      await Message.create({ content: data.text });
+
+      // Gửi lại cho chính mình
+      socket.emit('chat message', { text: data.text, self: true });
+
+      // Gửi cho những người khác
+      socket.broadcast.emit('chat message', { text: data.text, self: false });
+    } catch (err) {
+      console.error('Error saving message:', err);
+    }
+  });
+
+  console.log('A user connected');
+});
   Message.find().then(messages => {
     messages.forEach(msg => {
       socket.emit('chat message', msg.content);
