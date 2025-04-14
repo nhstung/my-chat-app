@@ -1,7 +1,7 @@
 {
   "name": "my-chat-app",
   "version": "1.0.0",
-  "description": "Simple chat app with MongoDB",
+  "description": "Simple chat app with Express, Socket.IO and MongoDB",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
